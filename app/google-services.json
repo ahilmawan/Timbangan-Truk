@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "132613234858",
+    "firebase_url": "https://weightbridge-70e6c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "weightbridge-70e6c",
+    "storage_bucket": "weightbridge-70e6c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:132613234858:android:0ba4eaaaa55e3909a370d3",
+        "android_client_info": {
+          "package_name": "id.ahilmawan.weightbridge"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDz8MkiTOxTtdw9Jy7aNERydksKXrVwXb4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
