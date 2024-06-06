@@ -4,20 +4,140 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/btnCreate"
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:elevation="@dimen/elevation_medium"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/btnUpdate"
-        android:layout_width="wrap_content"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            app:navigationIcon="@drawable/baseline_close_24"
+            app:title="@string/new_ticket" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilCheckinTime"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Update"
-        app:layout_constraintStart_toEndOf="@id/btnCreate"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginHorizontal="@dimen/padding_medium"
+        android:layout_marginTop="@dimen/padding_medium"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tietCheckinTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_checkin_time"
+            android:imeOptions="actionNext"
+            android:inputType="datetime"
+            android:textSize="@dimen/text_medium" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilDriverName"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/padding_medium"
+        android:layout_marginTop="@dimen/padding_medium"
+        app:layout_constraintTop_toBottomOf="@id/tilCheckinTime">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tietDriverName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_driver_name"
+            android:imeOptions="actionNext"
+            android:inputType="textPersonName"
+            android:textSize="@dimen/text_medium" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilLicensePlate"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/padding_medium"
+        android:layout_marginTop="@dimen/padding_medium"
+        app:layout_constraintTop_toBottomOf="@id/tilDriverName">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tietLicensePlate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_license_plate"
+            android:imeOptions="actionNext"
+            android:inputType="textCapCharacters"
+            android:textSize="@dimen/text_medium" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilInboundWeight"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/padding_medium"
+        android:layout_marginTop="@dimen/padding_medium"
+        app:layout_constraintTop_toBottomOf="@id/tilLicensePlate"
+        app:suffixText="@string/suffix_weight_unit">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tietInboundWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:digits="@string/number_only"
+            android:hint="@string/hint_inbound"
+            android:imeOptions="actionNext"
+            android:inputType="number"
+            android:textSize="@dimen/text_medium" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilOutboundWeight"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/padding_medium"
+        android:layout_marginTop="@dimen/padding_medium"
+        app:layout_constraintTop_toBottomOf="@id/tilInboundWeight"
+        app:suffixText="@string/suffix_weight_unit">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tietOutboundWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:digits="@string/number_only"
+            android:hint="@string/hint_outbound"
+            android:imeOptions="actionNext"
+            android:inputType="number"
+            android:textSize="@dimen/text_medium" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilNetWeight"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/padding_medium"
+        android:layout_marginTop="@dimen/padding_medium"
+        app:layout_constraintTop_toBottomOf="@id/tilOutboundWeight"
+        app:suffixText="@string/suffix_weight_unit">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tietNetWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:digits="@string/number_only"
+            android:hint="@string/hint_net_weight"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:textSize="@dimen/text_medium" />
+    </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,8 @@ interface TicketRepository {
 
     suspend fun getTickets(): List<Ticket>
 
+    suspend fun getTicket(id: String): Ticket?
+
     suspend fun createTicket(ticket: Ticket): Ticket
 
     suspend fun editTicket(ticket: Ticket): Ticket

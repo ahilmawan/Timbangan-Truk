@@ -1,17 +1,20 @@
 package id.ahilmawan.weightbridge.repositories
 
+import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
+import com.google.firebase.database.getValue
 import id.ahilmawan.weightbridge.models.Ticket
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class FirebaseTicketRepository : TicketRepository {
+class FirebaseTicketRepository @Inject constructor() : TicketRepository {
 
     companion object {
         private const val TICKET_DB_CHILD = "ticket"
@@ -20,7 +23,12 @@ class FirebaseTicketRepository : TicketRepository {
     private val database = Firebase.database.reference
 
     override suspend fun getTickets(): List<Ticket> {
-        return ticketsFlow().toList().flatten() // -> hack?
+        return ticketsFlow().first()
+    }
+
+    override suspend fun getTicket(id: String): Ticket? {
+        val snapshot = database.child(TICKET_DB_CHILD).child(id).get().await()
+        return snapshot.getValue<Ticket>()
     }
 
     override suspend fun createTicket(ticket: Ticket): Ticket {
@@ -41,7 +49,8 @@ class FirebaseTicketRepository : TicketRepository {
     private fun ticketsFlow() = callbackFlow {
         val dataListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val tickets = snapshot.children.mapNotNull { it.getValue(Ticket::class.java) }
+                val tickets = snapshot.children.mapNotNull { it.getValue<Ticket>() }
+                Log.d("FirebaseTicketRepository", "Flow Tickets: $tickets")
                 trySend(tickets)
             }
 
@@ -50,9 +59,10 @@ class FirebaseTicketRepository : TicketRepository {
             }
         }
 
-        database.addValueEventListener(dataListener)
+        database.child(TICKET_DB_CHILD).addValueEventListener(dataListener)
+
         awaitClose {
-            database.removeEventListener(dataListener)
+            database.child(TICKET_DB_CHILD).removeEventListener(dataListener)
         }
     }
 

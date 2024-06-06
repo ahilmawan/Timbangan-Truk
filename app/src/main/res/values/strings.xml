@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">Timbangan Truk</string>
+    <string name="number_only">0123456789</string>
+
+    <string name="new_ticket">New Ticket</string>
+    <string name="edit_ticket">Edit Ticket</string>
+
+    <string name="save">Save</string>
+
+    <string name="hint_driver_name">Driver Name</string>
+    <string name="hint_license_plate">License Plate</string>
+    <string name="hint_inbound">Inbound Weight</string>
+    <string name="hint_outbound">Outbound Weight</string>
+    <string name="hint_net_weight">Net Weight</string>
+    <string name="hint_checkin_time">Check-in Time</string>
+    <string name="suffix_weight_unit">Kg</string>
+
+    <string name="error_not_empty">This field cannot be empty</string>
+    <string name="error_greater_than_number">This field should be greater than %d</string>
+    <string name="error_greater_than_field">This field should be greater than %s</string>
+
 </resources>

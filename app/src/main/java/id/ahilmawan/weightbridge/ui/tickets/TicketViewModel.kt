@@ -1,5 +1,6 @@
 package id.ahilmawan.weightbridge.ui.tickets
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,9 +21,18 @@ class TicketViewModel(
         get() = ticketResult
 
     fun getTickets() {
+        Log.d("TicketViewModel", "Calling getTickets")
         ticketResult.value = Resource.Loading()
         viewModelScope.launch(Dispatchers.IO) {
-            ticketResult.postValue(Resource.Success(repository.getTickets()))
+            try {
+                val tickets = repository.getTickets()
+                Log.d("TicketViewModel", "Tickets: $tickets")
+
+                ticketResult.postValue(Resource.Success(tickets))
+            } catch (e: Exception) {
+                Log.d("TicketViewModel", "Error: ${e.message}", e)
+                ticketResult.postValue(Resource.Failure(e))
+            }
         }
     }
 }
