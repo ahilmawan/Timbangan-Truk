@@ -5,7 +5,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SortFilter(
-    val filterField: Field? = null,
     val filterTerm: String? = null,
     val sortField: Field? = null,
     val sortOrder: Order? = null

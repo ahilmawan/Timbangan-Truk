@@ -5,58 +5,70 @@
     android:layout_height="wrap_content"
     android:padding="@dimen/padding_medium">
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilField"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_medium"
+        android:hint="@string/filter_field"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <AutoCompleteTextView
+            android:id="@+id/actvField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:simpleItems="@array/filter_field_array" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilSearch"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_medium"
+        android:hint="@string/filter_term"
+        app:layout_constraintTop_toBottomOf="@id/tilField">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tietSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:inputType="textPersonName" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <TextView
         android:id="@+id/tvSortOptions"
         style="@style/TextAppearance.AppCompat.Medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_medium"
         android:fontFamily="sans-serif-medium"
-        android:text="@string/sort_options"
+        android:text="@string/sort_direction"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/tilSearch" />
 
     <RadioGroup
         android:id="@+id/rgSortOptions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/tvSortOptions">
 
         <RadioButton
-            android:id="@+id/rbDateAsc"
-            android:layout_width="wrap_content"
+            android:id="@+id/rbAscending"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/checkin_asc" />
+            android:layout_weight="1"
+            android:text="@string/sort_ascending" />
 
         <RadioButton
-            android:id="@+id/rbDateDesc"
-            android:layout_width="wrap_content"
+            android:id="@+id/rbDescending"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/checkin_desc" />
-
-        <RadioButton
-            android:id="@+id/rbPlateAsc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/plate_asc" />
-
-        <RadioButton
-            android:id="@+id/rbPlateDesc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/plate_desc" />
-
-        <RadioButton
-            android:id="@+id/rbNameAsc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/name_asc" />
-
-        <RadioButton
-            android:id="@+id/rbNameDesc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/name_desc" />
-
+            android:layout_weight="1"
+            android:text="@string/sort_descending" />
     </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

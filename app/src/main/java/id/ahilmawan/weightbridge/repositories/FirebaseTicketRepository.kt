@@ -80,30 +80,30 @@ class FirebaseTicketRepository @Inject constructor() : TicketRepository {
             }
         }
 
-        val dbReference = database.child(TICKET_DB_CHILD)
+        var dbQuery = sortFilter?.filterTerm?.let {
+            database.child(TICKET_DB_CHILD).equalTo(it) // Need more tinkering to filter case insensitive
+        } ?: database.child(TICKET_DB_CHILD)
 
-        val dbQuery = sortFilter?.sortField.let {
+        dbQuery = sortFilter?.sortField?.let {
             when (it) {
                 CHECKIN_DATE_TIME -> {
-                    dbReference.orderByChild(TICKET_DATE_FIELD)
+                    dbQuery.orderByChild(TICKET_DATE_FIELD)
                 }
 
                 DRIVER_NAME -> {
-                    dbReference.orderByChild(TICKET_DRIVER_FIELD)
+                    dbQuery.orderByChild(TICKET_DRIVER_FIELD)
                 }
 
                 LICENSE_NUMBER -> {
-                    dbReference.orderByChild(TICKET_PLATE_FIELD)
+                    dbQuery.orderByChild(TICKET_PLATE_FIELD)
                 }
-
-                else -> dbReference.orderByKey()
             }
-        }
+        } ?: dbQuery
 
         dbQuery.addValueEventListener(dataListener)
 
         awaitClose {
-            database.child(TICKET_DB_CHILD).removeEventListener(dataListener)
+            dbQuery.removeEventListener(dataListener)
         }
     }
 

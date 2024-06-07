@@ -33,12 +33,16 @@
     <string name="sort_filter">Filter &amp; Sort</string>
     <string name="apply">Apply</string>
     <string name="reset">Reset</string>
-    <string name="sort_options">Sort Options</string>
-    <string name="checkin_asc">Check-in Earliest</string>
-    <string name="checkin_desc">Check-in Latest</string>
-    <string name="name_asc">Driver Name A-Z</string>
-    <string name="name_desc">Driver Name Z-A</string>
-    <string name="plate_asc">License Plate A-Z</string>
-    <string name="plate_desc">License Plate Z-A</string>
+    <string name="filter_field">Select a field</string>
+    <string name="filter_term">Set a term</string>
+    <string name="sort_direction">Sort Direction</string>
+    <string name="sort_ascending">Ascending</string>
+    <string name="sort_descending">Descending</string>
+
+    <string-array name="filter_field_array">
+        <item>Check-in Time</item>
+        <item>Driver Name</item>
+        <item>License Plate</item>
+    </string-array>
 
 </resources>
