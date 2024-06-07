@@ -5,7 +5,10 @@
     <string name="new_ticket">New Ticket</string>
     <string name="edit_ticket">Edit Ticket</string>
 
+    <string name="detail_ticket">Detail Ticket</string>
+
     <string name="save">Save</string>
+    <string name="edit">Edit</string>
 
     <string name="hint_driver_name">Driver Name</string>
     <string name="hint_license_plate">License Plate</string>
@@ -21,5 +24,10 @@
     <string name="error_greater_than_field">This field should be greater than %s</string>
 
     <string name="please_wait">Please Wait…</string>
+
+    <string name="cargo">Cargo</string>
+    <string name="inbound_format">Inbound %d Kg</string>
+    <string name="outbound_format">Outbound %d Kg</string>
+    <string name="net_format">Nett %d Kg</string>
 
 </resources>

@@ -49,8 +49,16 @@ class FirebaseTicketRepository @Inject constructor() : TicketRepository {
     private fun ticketsFlow() = callbackFlow {
         val dataListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val tickets = snapshot.children.mapNotNull { it.getValue<Ticket>() }
+                val tickets = mutableListOf<Ticket>()
+                for (data in snapshot.children) {
+                    val ticket = data.getValue<Ticket>()
+                    if (ticket != null) {
+                        ticket.id = data.key ?: ""
+                        tickets.add(ticket)
+                    }
+                }
                 Log.d("FirebaseTicketRepository", "Flow Tickets: $tickets")
+
                 trySend(tickets)
             }
 

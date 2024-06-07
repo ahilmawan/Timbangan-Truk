@@ -1,6 +1,9 @@
 package id.ahilmawan.weightbridge.ui.tickets
 
+import id.ahilmawan.weightbridge.models.Ticket
+
 interface TicketItemListener {
-    fun onItemClicked(ticketId: String)
-    fun onItemEditClicked(ticketId: String)
+    fun onItemClicked(ticket: Ticket)
+
+    fun onItemEditClicked(ticket: Ticket)
 }

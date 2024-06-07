@@ -1,5 +1,6 @@
 package id.ahilmawan.weightbridge.ui.form
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -32,8 +33,7 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
     companion object {
         const val TAG = "FormActivity"
         const val EXTRA_TICKET = "EXTRA_TICKET"
-        private const val ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-        private const val DATE_FIELD_FORMAT = "EEEE, d MMMM yyyy HH:mm"
+        const val DATE_FIELD_FORMAT = "EEEE, d MMMM yyyy HH:mm"
     }
 
     private val viewModel: FormViewModel by viewModels()
@@ -41,8 +41,6 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
     private lateinit var viewBinding: ActivityFormBinding
 
     private var dateFieldFormatter = DateTimeFormatter.ofPattern(DATE_FIELD_FORMAT)
-
-    private var iso8601Formatter = DateTimeFormatter.ofPattern(ISO_8601_FORMAT)
 
     private var isInputValid = true
 
@@ -63,7 +61,7 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
 
         viewBinding = ActivityFormBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
-        setSupportActionBar(viewBinding.toolbar)
+        setupToolbar()
 
         ViewCompat.setOnApplyWindowInsetsListener(viewBinding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -77,10 +75,23 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
 
         intent.getParcelableExtra<Ticket>(EXTRA_TICKET)?.let {
             ticket = it
+            Log.d(TAG, "Ticket Initial: $ticket")
+            setupTitle(getString(R.string.edit_ticket))
             setupForm(ticket)
         }
 
         setupFieldErrorAutoDetection()
+    }
+
+    private fun setupToolbar() {
+        setSupportActionBar(viewBinding.toolbar)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+        }
+    }
+
+    private fun setupTitle(title: String) {
+        supportActionBar?.title = title
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -100,7 +111,13 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+
+                true
+            }
+
             R.id.action_done -> {
                 if (isFirstTimeValidation) {
                     isFirstTimeValidation = false
@@ -109,9 +126,12 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
                 } else {
                     saveTicket()
                 }
+
+                true
             }
+
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun setupViewModel() {
@@ -123,6 +143,9 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
 
                 is Resource.Success -> {
                     progressDialog.dismiss()
+                    setResult(RESULT_OK, Intent().apply {
+                        putExtra(EXTRA_TICKET, result.data)
+                    })
                     finish()
                 }
 
@@ -155,7 +178,9 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
     }
 
     private fun setupForm(ticket: Ticket) {
+        checkinTime = ticket.checkInDateTime
         with(viewBinding) {
+            checkinTime?.let { tietCheckinTime.setText(dateFieldFormatter.format(it)) }
             tietDriverName.setText(ticket.driverName)
             tietLicensePlate.setText(ticket.licensePlate)
             tietInboundWeight.setText(ticket.inboundWeight.toString())
@@ -206,11 +231,11 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
             licensePlate = viewBinding.tietLicensePlate.text.toString().trim(),
             inboundWeight = viewBinding.tietInboundWeight.text.toString().trim().toInt(),
             outboundWeight = viewBinding.tietOutboundWeight.text.toString().trim().toInt(),
-            netWeight = viewBinding.tietNetWeight.text.toString().trim().toInt(),
-            checkinTime = checkinTime?.let { iso8601Formatter.format(it) }
-                ?: iso8601Formatter.format(LocalDateTime.now())
+            netWeight = viewBinding.tietNetWeight.text.toString().trim().toInt()
         )
+        checkinTime?.let { ticket.checkInDateTime = it }
 
+        Log.d(TAG, "Ticket Save: $ticket")
         viewModel.saveTicket(ticket)
     }
 

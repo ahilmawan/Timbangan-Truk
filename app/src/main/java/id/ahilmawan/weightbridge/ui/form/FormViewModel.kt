@@ -55,10 +55,8 @@ class FormViewModel @Inject constructor(
     val calculatedNetWeight: Flow<Int> =
         combine(inboundWeight, outboundWeight) { inbound, outbound ->
             return@combine if (inbound in 1..<outbound) {
-                Log.d("FormViewModel", "inbound: $inbound, outbound: $outbound")
                 outbound - inbound
             } else {
-                Log.d("FormViewModel", "NET KOSONG")
                 0
             }
         }
