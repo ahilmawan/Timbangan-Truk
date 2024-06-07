@@ -3,26 +3,32 @@ package id.ahilmawan.weightbridge.ui.tickets
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.snackbar.Snackbar
+import id.ahilmawan.weightbridge.R
 import id.ahilmawan.weightbridge.databinding.ActivityMainBinding
 import id.ahilmawan.weightbridge.models.Resource
 import id.ahilmawan.weightbridge.models.Ticket
 import id.ahilmawan.weightbridge.repositories.FirebaseTicketRepository
+import id.ahilmawan.weightbridge.ui.common.SortFilter
 import id.ahilmawan.weightbridge.ui.detail.DetailTicketActivity
 import id.ahilmawan.weightbridge.ui.form.FormActivity
 import id.ahilmawan.weightbridge.ui.form.FormActivity.Companion.EXTRA_TICKET
 
-class MainActivity : AppCompatActivity(), TicketItemListener {
+class MainActivity : AppCompatActivity(), TicketItemListener, FilterSortDialog.FilterSortListener {
 
     private lateinit var viewBinding: ActivityMainBinding
 
     private lateinit var viewModel: TicketViewModel
 
     private lateinit var adapter: TicketAdapter
+
+    private var sortFilter: SortFilter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +37,7 @@ class MainActivity : AppCompatActivity(), TicketItemListener {
 
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
+        setSupportActionBar(viewBinding.toolbar)
 
         ViewCompat.setOnApplyWindowInsetsListener(viewBinding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -48,8 +55,24 @@ class MainActivity : AppCompatActivity(), TicketItemListener {
         loadTicket()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_filter_sort, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_filter_sort -> {
+                openSortFilter()
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     private fun loadTicket() {
-        viewModel.getTickets()
+        viewModel.getTickets(sortFilter)
     }
 
     private fun setupViewModel() {
@@ -110,6 +133,22 @@ class MainActivity : AppCompatActivity(), TicketItemListener {
         startActivity(Intent(this, FormActivity::class.java).apply {
             putExtra(EXTRA_TICKET, ticket)
         })
+    }
+
+    private fun openSortFilter() {
+        FilterSortDialog.newInstance(sortFilter).apply {
+            show(supportFragmentManager, FilterSortDialog.TAG)
+        }
+    }
+
+    override fun applyFilterSort(sortFilter: SortFilter) {
+        this.sortFilter = sortFilter
+        loadTicket()
+    }
+
+    override fun clearFilterSort() {
+        this.sortFilter = SortFilter()
+        loadTicket()
     }
 
 }

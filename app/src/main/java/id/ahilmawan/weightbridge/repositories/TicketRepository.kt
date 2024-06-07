@@ -1,10 +1,11 @@
 package id.ahilmawan.weightbridge.repositories
 
 import id.ahilmawan.weightbridge.models.Ticket
+import id.ahilmawan.weightbridge.ui.common.SortFilter
 
 interface TicketRepository {
 
-    suspend fun getTickets(): List<Ticket>
+    suspend fun getTickets(sortFilter: SortFilter?): List<Ticket>
 
     suspend fun getTicket(id: String): Ticket?
 

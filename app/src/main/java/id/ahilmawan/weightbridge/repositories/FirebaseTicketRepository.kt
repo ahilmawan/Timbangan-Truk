@@ -8,6 +8,11 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.google.firebase.database.getValue
 import id.ahilmawan.weightbridge.models.Ticket
+import id.ahilmawan.weightbridge.ui.common.SortFilter
+import id.ahilmawan.weightbridge.ui.common.SortFilter.Field.CHECKIN_DATE_TIME
+import id.ahilmawan.weightbridge.ui.common.SortFilter.Field.DRIVER_NAME
+import id.ahilmawan.weightbridge.ui.common.SortFilter.Field.LICENSE_NUMBER
+import id.ahilmawan.weightbridge.ui.common.SortFilter.Order.DESC
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
@@ -18,12 +23,20 @@ class FirebaseTicketRepository @Inject constructor() : TicketRepository {
 
     companion object {
         private const val TICKET_DB_CHILD = "ticket"
+        private const val TICKET_DATE_FIELD = "checkinTime"
+        private const val TICKET_DRIVER_FIELD = "driverName"
+        private const val TICKET_PLATE_FIELD = "licensePlate"
     }
 
     private val database = Firebase.database.reference
 
-    override suspend fun getTickets(): List<Ticket> {
-        return ticketsFlow().first()
+    override suspend fun getTickets(sortFilter: SortFilter?): List<Ticket> {
+        var result: List<Ticket> = ticketsFlow(sortFilter).first()
+        if (sortFilter?.sortOrder == DESC) {
+            result = result.reversed()
+        }
+
+        return result
     }
 
     override suspend fun getTicket(id: String): Ticket? {
@@ -46,7 +59,7 @@ class FirebaseTicketRepository @Inject constructor() : TicketRepository {
         return ticket
     }
 
-    private fun ticketsFlow() = callbackFlow {
+    private fun ticketsFlow(sortFilter: SortFilter?) = callbackFlow {
         val dataListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val tickets = mutableListOf<Ticket>()
@@ -67,7 +80,27 @@ class FirebaseTicketRepository @Inject constructor() : TicketRepository {
             }
         }
 
-        database.child(TICKET_DB_CHILD).addValueEventListener(dataListener)
+        val dbReference = database.child(TICKET_DB_CHILD)
+
+        val dbQuery = sortFilter?.sortField.let {
+            when (it) {
+                CHECKIN_DATE_TIME -> {
+                    dbReference.orderByChild(TICKET_DATE_FIELD)
+                }
+
+                DRIVER_NAME -> {
+                    dbReference.orderByChild(TICKET_DRIVER_FIELD)
+                }
+
+                LICENSE_NUMBER -> {
+                    dbReference.orderByChild(TICKET_PLATE_FIELD)
+                }
+
+                else -> dbReference.orderByKey()
+            }
+        }
+
+        dbQuery.addValueEventListener(dataListener)
 
         awaitClose {
             database.child(TICKET_DB_CHILD).removeEventListener(dataListener)

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import id.ahilmawan.weightbridge.models.Resource
 import id.ahilmawan.weightbridge.models.Ticket
 import id.ahilmawan.weightbridge.repositories.TicketRepository
+import id.ahilmawan.weightbridge.ui.common.SortFilter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -20,13 +21,11 @@ class TicketViewModel(
     val ticketState: LiveData<Resource<List<Ticket>>>
         get() = ticketResult
 
-    fun getTickets() {
-        Log.d("TicketViewModel", "Calling getTickets")
+    fun getTickets(sortFilter: SortFilter? = null) {
         ticketResult.value = Resource.Loading()
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val tickets = repository.getTickets()
-                Log.d("TicketViewModel", "Tickets: $tickets")
+                val tickets = repository.getTickets(sortFilter)
 
                 ticketResult.postValue(Resource.Success(tickets))
             } catch (e: Exception) {

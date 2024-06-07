@@ -30,4 +30,15 @@
     <string name="outbound_format">Outbound %d Kg</string>
     <string name="net_format">Nett %d Kg</string>
 
+    <string name="sort_filter">Filter &amp; Sort</string>
+    <string name="apply">Apply</string>
+    <string name="reset">Reset</string>
+    <string name="sort_options">Sort Options</string>
+    <string name="checkin_asc">Check-in Earliest</string>
+    <string name="checkin_desc">Check-in Latest</string>
+    <string name="name_asc">Driver Name A-Z</string>
+    <string name="name_desc">Driver Name Z-A</string>
+    <string name="plate_asc">License Plate A-Z</string>
+    <string name="plate_desc">License Plate Z-A</string>
+
 </resources>
