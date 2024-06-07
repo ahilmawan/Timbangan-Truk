@@ -16,7 +16,10 @@
     <string name="suffix_weight_unit">Kg</string>
 
     <string name="error_not_empty">This field cannot be empty</string>
+    <string name="error_less_than">This field should be lesser than %s</string>
     <string name="error_greater_than_number">This field should be greater than %d</string>
     <string name="error_greater_than_field">This field should be greater than %s</string>
+
+    <string name="please_wait">Please Wait…</string>
 
 </resources>

@@ -33,9 +33,11 @@
             android:id="@+id/tietCheckinTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:editable="false"
+            android:focusable="false"
             android:hint="@string/hint_checkin_time"
             android:imeOptions="actionNext"
-            android:inputType="datetime"
+            android:inputType="none"
             android:textSize="@dimen/text_medium" />
     </com.google.android.material.textfield.TextInputLayout>
 

@@ -7,34 +7,54 @@ import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import id.ahilmawan.weightbridge.R
 import id.ahilmawan.weightbridge.databinding.ActivityFormBinding
 import id.ahilmawan.weightbridge.models.Resource
 import id.ahilmawan.weightbridge.models.Ticket
+import id.ahilmawan.weightbridge.ui.common.DatePickerDialogFragment
+import id.ahilmawan.weightbridge.ui.common.DateTimeListener
+import id.ahilmawan.weightbridge.ui.common.ProgressDialog
+import id.ahilmawan.weightbridge.ui.common.TimePickerDialogFragment
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
-class FormActivity : AppCompatActivity() {
+class FormActivity : AppCompatActivity(), DateTimeListener {
 
     companion object {
         const val TAG = "FormActivity"
         const val EXTRA_TICKET = "EXTRA_TICKET"
+        private const val ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+        private const val DATE_FIELD_FORMAT = "EEEE, d MMMM yyyy HH:mm"
     }
 
     private val viewModel: FormViewModel by viewModels()
 
     private lateinit var viewBinding: ActivityFormBinding
 
-    private var isInputValid = false
+    private var dateFieldFormatter = DateTimeFormatter.ofPattern(DATE_FIELD_FORMAT)
+
+    private var iso8601Formatter = DateTimeFormatter.ofPattern(ISO_8601_FORMAT)
+
+    private var isInputValid = true
 
     private var isFirstTimeValidation = true
 
     private var ticket = Ticket()
+
+    private var checkinTime: LocalDateTime? = null
+
+    private val progressDialog: ProgressDialog by lazy {
+        ProgressDialog(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,12 +73,14 @@ class FormActivity : AppCompatActivity() {
 
         setupViewModel()
 
+        setupView()
+
         intent.getParcelableExtra<Ticket>(EXTRA_TICKET)?.let {
             ticket = it
             setupForm(ticket)
         }
 
-        setupEventListener()
+        setupFieldErrorAutoDetection()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -67,7 +89,12 @@ class FormActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        menu?.findItem(R.id.action_done)?.isEnabled = isInputValid || isFirstTimeValidation
+        menu?.findItem(R.id.action_done)?.let {
+            it.icon =
+                if (isInputValid) ContextCompat.getDrawable(this, R.drawable.baseline_check_24)
+                else ContextCompat.getDrawable(this, R.drawable.baseline_check_grey_24)
+            it.isEnabled = isInputValid
+        }
 
         return true
     }
@@ -90,23 +117,34 @@ class FormActivity : AppCompatActivity() {
     private fun setupViewModel() {
         viewModel.ticketState.observe(this) { result ->
             when (result) {
-                is Resource.Loading -> {}
-                is Resource.Success -> {}
-                is Resource.Failure -> {}
+                is Resource.Loading -> {
+                    progressDialog.show()
+                }
+
+                is Resource.Success -> {
+                    progressDialog.dismiss()
+                    finish()
+                }
+
+                is Resource.Failure -> {
+                    val message = result.error.message ?: ""
+                    Log.e(TAG, "Unable to Save Ticket:$message", result.error)
+                    progressDialog.dismiss()
+                    Snackbar.make(viewBinding.root, message, Snackbar.LENGTH_LONG).show()
+                }
             }
         }
 
         lifecycleScope.launch {
             viewModel.inputValidations.collect { isValid ->
-                isInputValid = isValid
                 if (!isFirstTimeValidation) {
+                    isInputValid = isValid
                     invalidateOptionsMenu()
                 }
             }
         }
         lifecycleScope.launch {
             viewModel.calculatedNetWeight.collect { netWeight ->
-                Log.d("CALCULATED NET WEIGHT", "Weight $netWeight")
                 if (netWeight > 0) {
                     viewBinding.tietNetWeight.setText(netWeight.toString())
                 } else {
@@ -126,32 +164,38 @@ class FormActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupEventListener() {
+    private fun setupView() {
+        viewBinding.tietCheckinTime.setOnClickListener {
+            openDatePicker()
+        }
+    }
+
+    private fun setupFieldErrorAutoDetection() {
         with(viewBinding) {
             tietDriverName.addTextChangedListener {
                 val input = it.toString().trim()
                 viewModel.setDriverName(input)
-                validateDriverField(input)
+                if (!isFirstTimeValidation) validateDriverField(input)
             }
             tietLicensePlate.addTextChangedListener {
                 val input = it.toString().trim()
                 viewModel.setLicensePlate(input)
-                validateLicenseField(input)
+                if (!isFirstTimeValidation) validateLicenseField(input)
             }
             tietInboundWeight.addTextChangedListener {
                 val input = it.toString().trim().toIntOrNull() ?: 0
                 viewModel.setInboundWeight(input)
-                validateInboundWeightField(input)
+                if (!isFirstTimeValidation) validateInboundWeightField(input)
             }
             tietOutboundWeight.addTextChangedListener {
                 val input = it.toString().trim().toIntOrNull() ?: 0
                 viewModel.setOutboundWeight(input)
-                validateOutboundWeightField(input)
+                if (!isFirstTimeValidation) validateOutboundWeightField(input)
             }
             tietNetWeight.addTextChangedListener {
                 val input = it.toString().trim().toIntOrNull() ?: 0
                 viewModel.setNetWeight(input)
-                validateNetWeightField(input)
+                if (!isFirstTimeValidation) validateNetWeightField(input)
             }
         }
     }
@@ -162,7 +206,9 @@ class FormActivity : AppCompatActivity() {
             licensePlate = viewBinding.tietLicensePlate.text.toString().trim(),
             inboundWeight = viewBinding.tietInboundWeight.text.toString().trim().toInt(),
             outboundWeight = viewBinding.tietOutboundWeight.text.toString().trim().toInt(),
-            netWeight = viewBinding.tietNetWeight.text.toString().trim().toInt()
+            netWeight = viewBinding.tietNetWeight.text.toString().trim().toInt(),
+            checkinTime = checkinTime?.let { iso8601Formatter.format(it) }
+                ?: iso8601Formatter.format(LocalDateTime.now())
         )
 
         viewModel.saveTicket(ticket)
@@ -213,16 +259,29 @@ class FormActivity : AppCompatActivity() {
     }
 
     private fun validateInboundWeightField(value: Int): Boolean {
-        val isValid = value > 0
+        val outboundWeight = viewBinding.tietOutboundWeight.text.toString().trim().toInt()
+
+        val isGreaterThanZero = value > 0
+        val isLessThanOutbound = value < outboundWeight
+        val isValid = isGreaterThanZero && isLessThanOutbound
+
         viewBinding.tilInboundWeight.error =
-            if (isValid) ""
-            else getString(R.string.error_greater_than_number, 0)
+            when {
+                !isGreaterThanZero -> getString(R.string.error_greater_than_number, 0)
+                !isLessThanOutbound -> getString(
+                    R.string.error_less_than,
+                    getString(R.string.hint_outbound)
+                )
+
+                else -> ""
+            }
 
         return isValid
     }
 
     private fun validateOutboundWeightField(value: Int): Boolean {
         val inBoundWeight = viewBinding.tietInboundWeight.text.toString().trim().toInt()
+
         val isValid = value > inBoundWeight
         viewBinding.tilOutboundWeight.error =
             if (isValid) ""
@@ -231,6 +290,35 @@ class FormActivity : AppCompatActivity() {
                 getString(R.string.hint_inbound)
             )
 
+        if (isValid) {
+            viewBinding.tilInboundWeight.error = ""
+        }
+
+
         return isValid
+    }
+
+    private fun setDateField(current: LocalDateTime) {
+        viewBinding.tietCheckinTime.setText(dateFieldFormatter.format(current))
+    }
+
+    private fun openDatePicker() {
+        DatePickerDialogFragment.newInstance()
+            .show(supportFragmentManager, DatePickerDialogFragment.TAG)
+    }
+
+    private fun openTimePicker(current: LocalDateTime) {
+        TimePickerDialogFragment.newInstance(current)
+            .show(supportFragmentManager, DatePickerDialogFragment.TAG)
+    }
+
+    override fun onDateSelected(dateTime: LocalDateTime) {
+        checkinTime = dateTime
+        openTimePicker(dateTime)
+    }
+
+    override fun onTimeSelected(dateTime: LocalDateTime) {
+        checkinTime = dateTime
+        setDateField(dateTime)
     }
 }
