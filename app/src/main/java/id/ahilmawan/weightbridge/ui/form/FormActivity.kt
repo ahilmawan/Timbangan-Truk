@@ -25,6 +25,7 @@ import id.ahilmawan.weightbridge.ui.common.ProgressDialog
 import id.ahilmawan.weightbridge.ui.common.TimePickerDialogFragment
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
@@ -48,7 +49,7 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
 
     private var ticket = Ticket()
 
-    private var checkinTime: LocalDateTime? = null
+    private var checkinTime: LocalDateTime = LocalDateTime.now()
 
     private val progressDialog: ProgressDialog by lazy {
         ProgressDialog(this)
@@ -178,9 +179,10 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
     }
 
     private fun setupForm(ticket: Ticket) {
-        checkinTime = ticket.checkInDateTime
+        checkinTime = ticket.checkinDateTime
+
         with(viewBinding) {
-            checkinTime?.let { tietCheckinTime.setText(dateFieldFormatter.format(it)) }
+            tietCheckinTime.setText(dateFieldFormatter.format(checkinTime))
             tietDriverName.setText(ticket.driverName)
             tietLicensePlate.setText(ticket.licensePlate)
             tietInboundWeight.setText(ticket.inboundWeight.toString())
@@ -227,13 +229,13 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
 
     private fun saveTicket() {
         ticket = ticket.copy(
+            checkinTime = checkinTime.toEpochSecond(ZoneOffset.UTC),
             driverName = viewBinding.tietDriverName.text.toString().trim(),
             licensePlate = viewBinding.tietLicensePlate.text.toString().trim(),
             inboundWeight = viewBinding.tietInboundWeight.text.toString().trim().toInt(),
             outboundWeight = viewBinding.tietOutboundWeight.text.toString().trim().toInt(),
             netWeight = viewBinding.tietNetWeight.text.toString().trim().toInt()
         )
-        checkinTime?.let { ticket.checkInDateTime = it }
 
         Log.d(TAG, "Ticket Save: $ticket")
         viewModel.saveTicket(ticket)
@@ -328,7 +330,7 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
     }
 
     private fun openDatePicker() {
-        DatePickerDialogFragment.newInstance()
+        DatePickerDialogFragment.newInstance(checkinTime)
             .show(supportFragmentManager, DatePickerDialogFragment.TAG)
     }
 

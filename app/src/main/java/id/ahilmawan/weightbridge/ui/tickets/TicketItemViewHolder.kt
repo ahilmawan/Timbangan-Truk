@@ -40,9 +40,8 @@ class TicketItemViewHolder(
             tvDriverName.text = ticket.driverName
             tvNetWeight.text = weightUnit
 
-            ticket.checkInDateTime?.let {
-                tvDate.text = DateTimeFormatter.ofPattern(FormActivity.DATE_FIELD_FORMAT).format(it)
-            }
+            tvDate.text = DateTimeFormatter.ofPattern(FormActivity.DATE_FIELD_FORMAT)
+                .format(ticket.checkinDateTime)
         }
     }
 }

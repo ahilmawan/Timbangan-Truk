@@ -10,6 +10,10 @@ data class SortFilter(
     val sortOrder: Order? = null
 ) : Parcelable {
 
+    companion object {
+        const val DATE_FORMAT = "d MMMM yyyy"
+    }
+
     enum class Field {
         CHECKIN_DATE_TIME, LICENSE_NUMBER, DRIVER_NAME
     }

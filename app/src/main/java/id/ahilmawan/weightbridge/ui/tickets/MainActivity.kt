@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity(), TicketItemListener, FilterSortDialog.F
         })
     }
 
-    private fun openTicketForm(ticket: Ticket = Ticket()) {
+    private fun openTicketForm(ticket: Ticket? = null) {
         startActivity(Intent(this, FormActivity::class.java).apply {
             putExtra(EXTRA_TICKET, ticket)
         })

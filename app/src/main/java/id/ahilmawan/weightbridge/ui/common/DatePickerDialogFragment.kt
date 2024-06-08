@@ -33,6 +33,9 @@ class DatePickerDialogFragment : DialogFragment(), DatePickerDialog.OnDateSetLis
         super.onAttach(context)
 
         listener = context as? DateTimeListener
+        if (listener == null) {
+            listener = parentFragment as? DateTimeListener
+        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -44,7 +47,7 @@ class DatePickerDialogFragment : DialogFragment(), DatePickerDialog.OnDateSetLis
             requireContext(),
             this,
             currentDateTime.year,
-            currentDateTime.monthValue - 1,
+            currentDateTime.monthValue + 1,
             currentDateTime.dayOfMonth
         )
         dateDialog.datePicker.maxDate = System.currentTimeMillis()
@@ -56,7 +59,7 @@ class DatePickerDialogFragment : DialogFragment(), DatePickerDialog.OnDateSetLis
         listener?.onDateSelected(
             LocalDateTime.of(
                 year,
-                month,
+                month + 1,
                 dayOfMonth,
                 currentDateTime.hour,
                 currentDateTime.minute

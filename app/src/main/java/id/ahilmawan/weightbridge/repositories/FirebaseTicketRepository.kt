@@ -12,11 +12,15 @@ import id.ahilmawan.weightbridge.ui.common.SortFilter
 import id.ahilmawan.weightbridge.ui.common.SortFilter.Field.CHECKIN_DATE_TIME
 import id.ahilmawan.weightbridge.ui.common.SortFilter.Field.DRIVER_NAME
 import id.ahilmawan.weightbridge.ui.common.SortFilter.Field.LICENSE_NUMBER
-import id.ahilmawan.weightbridge.ui.common.SortFilter.Order.DESC
+import id.ahilmawan.weightbridge.ui.common.SortFilter.Order.ASC
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class FirebaseTicketRepository @Inject constructor() : TicketRepository {
@@ -32,7 +36,9 @@ class FirebaseTicketRepository @Inject constructor() : TicketRepository {
 
     override suspend fun getTickets(sortFilter: SortFilter?): List<Ticket> {
         var result: List<Ticket> = ticketsFlow(sortFilter).first()
-        if (sortFilter?.sortOrder == DESC) {
+
+        // Default sorting is DESC
+        if (sortFilter?.sortOrder != ASC) {
             result = result.reversed()
         }
 
@@ -80,25 +86,34 @@ class FirebaseTicketRepository @Inject constructor() : TicketRepository {
             }
         }
 
-        var dbQuery = sortFilter?.filterTerm?.let {
-            database.child(TICKET_DB_CHILD).equalTo(it) // Need more tinkering to filter case insensitive
-        } ?: database.child(TICKET_DB_CHILD)
+        val dbReference = database.child(TICKET_DB_CHILD)
 
-        dbQuery = sortFilter?.sortField?.let {
-            when (it) {
-                CHECKIN_DATE_TIME -> {
-                    dbQuery.orderByChild(TICKET_DATE_FIELD)
-                }
+        val orderField = when (sortFilter?.sortField) {
+            CHECKIN_DATE_TIME -> TICKET_DATE_FIELD
+            DRIVER_NAME -> TICKET_DRIVER_FIELD
+            LICENSE_NUMBER -> TICKET_PLATE_FIELD
+            else -> TICKET_DATE_FIELD // -> default order is by checkin time
+        }
 
-                DRIVER_NAME -> {
-                    dbQuery.orderByChild(TICKET_DRIVER_FIELD)
-                }
+        var dbQuery = dbReference.orderByChild(orderField)
 
-                LICENSE_NUMBER -> {
-                    dbQuery.orderByChild(TICKET_PLATE_FIELD)
-                }
+        sortFilter?.filterTerm?.let {
+            if (orderField == TICKET_DATE_FIELD) {
+                val originalFormatter = DateTimeFormatter.ofPattern(SortFilter.DATE_FORMAT)
+                val originalDate = LocalDate.parse(it, originalFormatter)
+                val startDateTime = originalDate.atStartOfDay()
+                val endDateTime = originalDate.atTime(LocalTime.MAX)
+
+                dbQuery = dbQuery
+                    .startAfter(startDateTime.toEpochSecond(ZoneOffset.UTC).toDouble())
+                    .endAt(endDateTime.toEpochSecond(ZoneOffset.UTC).toDouble())
+
+            } else if (it.isNotBlank()) {
+                dbQuery = dbQuery.equalTo(it)
             }
-        } ?: dbQuery
+        }
+
+        Log.d("FirebaseRepo", "Query $dbQuery")
 
         dbQuery.addValueEventListener(dataListener)
 

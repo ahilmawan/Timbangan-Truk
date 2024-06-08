@@ -70,7 +70,7 @@ class DetailTicketActivity : AppCompatActivity() {
 
     private fun setupView(ticket: Ticket) {
         val fieldDateFormatter = DateTimeFormatter.ofPattern(FormActivity.DATE_FIELD_FORMAT)
-        val checkInDateTimeLabel = fieldDateFormatter.format(ticket.checkInDateTime)
+        val checkInDateTimeLabel = fieldDateFormatter.format(ticket.checkinDateTime)
 
         with(viewBinding) {
             tvLicenseNumber.text = ticket.licensePlate
