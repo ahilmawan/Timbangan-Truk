@@ -73,15 +73,13 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
         setupViewModel()
 
         setupView()
-
+        setupFieldErrorAutoDetection()
         intent.getParcelableExtra<Ticket>(EXTRA_TICKET)?.let {
             ticket = it
             Log.d(TAG, "Ticket Initial: $ticket")
             setupTitle(getString(R.string.edit_ticket))
             setupForm(ticket)
         }
-
-        setupFieldErrorAutoDetection()
     }
 
     private fun setupToolbar() {
@@ -180,6 +178,7 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
 
     private fun setupForm(ticket: Ticket) {
         checkinTime = ticket.checkinDateTime
+        viewModel.setCheckInTime(ticket.checkinTime)
 
         with(viewBinding) {
             tietCheckinTime.setText(dateFieldFormatter.format(checkinTime))

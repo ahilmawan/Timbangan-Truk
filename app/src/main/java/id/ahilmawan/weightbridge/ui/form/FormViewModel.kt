@@ -34,7 +34,7 @@ class FormViewModel @Inject constructor(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val weightValidations: Flow<Boolean> =
-        combine(inboundWeight, outboundWeight, netWeight) { inbound, outbound, net ->
+        combine(inboundWeight, outboundWeight) { inbound, outbound ->
             return@combine inbound in 1..<outbound
         }
 

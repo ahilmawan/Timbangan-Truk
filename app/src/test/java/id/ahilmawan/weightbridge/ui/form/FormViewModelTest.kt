@@ -1,10 +1,7 @@
 package id.ahilmawan.weightbridge.ui.form
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import id.ahilmawan.weightbridge.models.Resource
-import id.ahilmawan.weightbridge.models.Ticket
 import id.ahilmawan.weightbridge.repositories.TicketRepository
-import id.ahilmawan.weightbridge.ui.common.SortFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
