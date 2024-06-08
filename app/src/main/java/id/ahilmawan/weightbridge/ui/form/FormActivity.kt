@@ -242,6 +242,7 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
     }
 
     private fun validateInitialInput() {
+        val checkInDateTime = viewBinding.tietCheckinTime.text.toString().trim()
         val driver = viewBinding.tietDriverName.text.toString().trim()
         val license = viewBinding.tietLicensePlate.text.toString().trim()
         val inbound = viewBinding.tietInboundWeight.text.toString().trim().toIntOrNull() ?: 0
@@ -249,13 +250,22 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
         val net = viewBinding.tietNetWeight.text.toString().trim().toIntOrNull() ?: 0
 
         val isValid =
-            validateDriverField(driver) && validateLicenseField(license)
-                    && validateInboundWeightField(inbound) && validateOutboundWeightField(outbound)
-                    && validateNetWeightField(net)
+            validateCheckInField(checkInDateTime) && validateDriverField(driver)
+                    && validateLicenseField(license) && validateInboundWeightField(inbound)
+                    && validateOutboundWeightField(outbound) && validateNetWeightField(net)
 
         if (isValid) {
             saveTicket()
         }
+    }
+
+    private fun validateCheckInField(input: String): Boolean {
+        val isValid = input.isNotBlank()
+        viewBinding.tilCheckinTime.error =
+            if (isValid) ""
+            else getString(R.string.error_not_empty)
+
+        return isValid
     }
 
     private fun validateDriverField(input: String): Boolean {
@@ -327,6 +337,7 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
 
     private fun setDateField(current: LocalDateTime) {
         viewBinding.tietCheckinTime.setText(dateFieldFormatter.format(current))
+        viewBinding.tilCheckinTime.error = ""
     }
 
     private fun openDatePicker() {

@@ -1,12 +1,12 @@
 package id.ahilmawan.weightbridge.ui.form
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-
 import id.ahilmawan.weightbridge.models.Resource
 import id.ahilmawan.weightbridge.models.Ticket
 import id.ahilmawan.weightbridge.repositories.TicketRepository
@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,30 +25,32 @@ class FormViewModel @Inject constructor(
     private val ticketResult = MutableLiveData<Resource<Ticket>>()
     val ticketState: LiveData<Resource<Ticket>> get() = ticketResult
 
-    private val chekcinTime = MutableStateFlow(Date())
+    private val checkinTime = MutableStateFlow(0L)
     private val licensePlate = MutableStateFlow("")
     private val driverName = MutableStateFlow("")
     private val inboundWeight = MutableStateFlow(0)
     private val outboundWeight = MutableStateFlow(0)
     private val netWeight = MutableStateFlow(0)
 
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val weightValidations: Flow<Boolean> =
+        combine(inboundWeight, outboundWeight, netWeight) { inbound, outbound, net ->
+            return@combine inbound in 1..<outbound && net > 0
+        }
+
     val inputValidations: Flow<Boolean> =
         combine(
+            checkinTime,
             licensePlate,
             driverName,
-            inboundWeight,
-            outboundWeight,
-            netWeight
-        ) { license, driver, inbound, outbound, net ->
+            weightValidations,
+        ) { checkin, license, driver, weightValid ->
 
             val isLicenseValid = license.isNotBlank()
             val isDriverValid = driver.isNotBlank()
-            val isInboundValid = inbound > 0
-            val isOutboundValid = outbound > inbound
-            val isNetValid = net > 0
+            val isCheckinValid = checkin > 0
 
-            return@combine isLicenseValid && isDriverValid
-                    && isInboundValid && isOutboundValid && isNetValid
+            return@combine isLicenseValid && isDriverValid && isCheckinValid && weightValid
         }
 
     val calculatedNetWeight: Flow<Int> =
@@ -99,7 +100,7 @@ class FormViewModel @Inject constructor(
         netWeight.value = weight
     }
 
-    fun setCheckInTime(time: Date) {
-        chekcinTime.value = time
+    fun setCheckInTime(epochTime: Long) {
+        checkinTime.value = epochTime
     }
 }
