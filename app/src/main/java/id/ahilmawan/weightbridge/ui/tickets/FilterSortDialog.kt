@@ -4,7 +4,8 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.text.InputType
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
 import id.ahilmawan.weightbridge.R
@@ -87,11 +88,13 @@ class FilterSortDialog : DialogFragment(), DateTimeListener {
 
     private fun setupInitialView() {
         with(viewBinding) {
+            tietDate.setOnClickListener { openDatePicker() }
+
             when (sortFilter.sortField) {
                 CHECKIN_DATE_TIME -> {
                     val text = actvField.adapter.getItem(0).toString()
                     actvField.setText(text, false)
-                    setTextFieldForPicker()
+                    showPicker(true)
                 }
 
                 DRIVER_NAME -> {
@@ -107,7 +110,10 @@ class FilterSortDialog : DialogFragment(), DateTimeListener {
                 else -> actvField.clearListSelection()
             }
 
-            sortFilter.filterTerm?.let { tietSearch.setText(it) }
+            sortFilter.filterTerm?.let {
+                if (sortFilter.sortField == CHECKIN_DATE_TIME) tietDate.setText(it)
+                else tietSearch.setText(it)
+            }
 
             when (sortFilter.sortOrder) {
                 ASC -> rgSortOptions.check(R.id.rbAscending)
@@ -122,17 +128,17 @@ class FilterSortDialog : DialogFragment(), DateTimeListener {
             actvField.setOnItemClickListener { _, _, position, _ ->
                 when (position) {
                     0 -> {
-                        setTextFieldForPicker()
+                        showPicker(true)
                         sortFilter = sortFilter.copy(sortField = CHECKIN_DATE_TIME)
                     }
 
                     1 -> {
-                        resetTextField()
+                        showPicker(false)
                         sortFilter = sortFilter.copy(sortField = DRIVER_NAME)
                     }
 
                     2 -> {
-                        resetTextField()
+                        showPicker(false)
                         sortFilter = sortFilter.copy(sortField = LICENSE_NUMBER)
                     }
                 }
@@ -167,29 +173,15 @@ class FilterSortDialog : DialogFragment(), DateTimeListener {
         filterDateTime = dateTime
         val term = dateTime.format(dateFormatter)
         sortFilter = sortFilter.copy(filterTerm = term)
-        viewBinding.tietSearch.setText(term)
+        viewBinding.tietDate.setText(term)
     }
 
     override fun onTimeSelected(dateTime: LocalDateTime) {
         // Do nothing
     }
 
-    private fun setTextFieldForPicker() {
-        with(viewBinding.tietSearch) {
-            isFocusable = false
-            setText("")
-            setOnClickListener { openDatePicker() }
-        }
-    }
-
-    private fun resetTextField() {
-        with(viewBinding.tietSearch) {
-            setOnClickListener(null)
-            isFocusable = true
-            setText("")
-
-            requestFocus()
-        }
-
+    private fun showPicker(show: Boolean) {
+        viewBinding.tilSearch.isInvisible = show
+        viewBinding.tilDate.isVisible = show
     }
 }
