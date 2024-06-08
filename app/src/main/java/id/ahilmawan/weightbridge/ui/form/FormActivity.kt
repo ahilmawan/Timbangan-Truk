@@ -256,6 +256,9 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
 
         if (isValid) {
             saveTicket()
+        } else {
+            isInputValid = false
+            invalidateOptionsMenu()
         }
     }
 
@@ -357,6 +360,7 @@ class FormActivity : AppCompatActivity(), DateTimeListener {
 
     override fun onTimeSelected(dateTime: LocalDateTime) {
         checkinTime = dateTime
+        viewModel.setCheckInTime(checkinTime.toEpochSecond(ZoneOffset.UTC),)
         setDateField(dateTime)
     }
 }

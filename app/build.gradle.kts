@@ -65,6 +65,9 @@ dependencies {
     implementation(libs.firebase.database)
 
     testImplementation(libs.junit)
+    testImplementation(libs.coroutine.test)
+    testImplementation(libs.arch.core.testing)
+    testImplementation(libs.mockitoKotlin)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

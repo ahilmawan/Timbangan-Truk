@@ -35,23 +35,20 @@ class FormViewModel @Inject constructor(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val weightValidations: Flow<Boolean> =
         combine(inboundWeight, outboundWeight, netWeight) { inbound, outbound, net ->
-            return@combine inbound in 1..<outbound && net > 0
+            return@combine inbound in 1..<outbound
         }
 
-    val inputValidations: Flow<Boolean> =
-        combine(
-            checkinTime,
-            licensePlate,
-            driverName,
-            weightValidations,
-        ) { checkin, license, driver, weightValid ->
+    val inputValidations: Flow<Boolean> = combine(
+        checkinTime, licensePlate, driverName, weightValidations, netWeight
+    ) { checkin, license, driver, weightValid, netWeight ->
 
-            val isLicenseValid = license.isNotBlank()
-            val isDriverValid = driver.isNotBlank()
-            val isCheckinValid = checkin > 0
+        val isLicenseValid = license.isNotBlank()
+        val isDriverValid = driver.isNotBlank()
+        val isCheckinValid = checkin > 0
+        val isNetWeightValid = netWeight > 0
 
-            return@combine isLicenseValid && isDriverValid && isCheckinValid && weightValid
-        }
+        return@combine isLicenseValid && isDriverValid && isCheckinValid && weightValid && isNetWeightValid
+    }
 
     val calculatedNetWeight: Flow<Int> =
         combine(inboundWeight, outboundWeight) { inbound, outbound ->
